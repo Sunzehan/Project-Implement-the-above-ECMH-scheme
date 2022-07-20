@@ -27,6 +27,7 @@ UTXO Commitment的实现方式
 
 用hash-then-add方法去哈希集合存在的其他问题：
 可以参考如下的研究论文：
+
 https://jameshfisher.com/2018/01/09/how-to-hash-multiple-values.html
 为了解决哈希求和算法引入的问题，我们采用ECMH算法进行UTXO向主链的提交
 
