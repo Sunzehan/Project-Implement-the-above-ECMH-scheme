@@ -206,5 +206,242 @@ int secp256k1_multiset_init(const secp256k1_context* ctx, secp256k1_multiset *mu
 }
 #endif
 
+
+
 //希望再写一下学习笔记中相关的安全测试的功能
-//尤其是关于在mutliset操作后的乱序，拼接，删除等操作后可能引入的安全性攻击，比如碰撞，第二原象，原象等
+//尤其是关于在mutliset操作后的乱序，拼接，删除等操作后可能引入的安全性攻击，比如碰撞，第二原象，原象等。
+//重新写了用于测试的程序(没有额外上传测试程序（懒了）直接)
+/*
+#ifndef _SECP256K1_MODULE_MULTISET_TESTS_
+#define _SECP256K1_MODULE_MULTISET_TESTS_
+
+
+#include "include/secp256k1.h"
+#include "include/secp256k1_multiset.h"
+#include "util.h"
+#include "testrand.h"
+如果要单独运行测试程序首先需要将上面secp256k1椭圆曲线做的ECMH的cpp文件改为.h的头文件
+去掉这里的注释加上这些头文件引用*/
+
+#define DATALEN   64*3
+#define DATACOUNT 100
+
+
+#define CHECK_EQUAL(a,b) { \
+    unsigned char hash1[32]; \
+    unsigned char hash2[32]; \
+    secp256k1_multiset_finalize(ctx, hash1, (a)); \
+    secp256k1_multiset_finalize(ctx, hash2, (b)); \
+    CHECK(memcmp(hash1,hash2,sizeof(hash1))==0); \
+}
+
+#define CHECK_NOTEQUAL(a,b) { \
+    unsigned char hash1[32]; \
+    unsigned char hash2[32]; \
+    secp256k1_multiset_finalize(ctx, hash1, (a)); \
+    secp256k1_multiset_finalize(ctx, hash2, (b)); \
+    CHECK(memcmp(hash1,hash2,sizeof(hash1))!=0); \
+}
+
+
+static unsigned char data[DATACOUNT][DATALEN];
+/*生成一个随机数 */
+static void initdata(void) {
+    int n,m;
+    for(n=0; n < DATACOUNT; n++) {
+        for(m=0; m < DATALEN/4; m++) {
+            ((uint32_t*) data[n])[m] = secp256k1_rand32();
+        }
+
+    }
+}
+
+/*我们先测试对于乱序的multiset，
+在椭圆曲线secp256k1上进行hash，对于两个不同的输入
+输出的最终hash值是否会产生碰撞
+抗碰撞实与抗第二原象实验！*/
+
+void test_unordered(void) {
+
+    secp256k1_multiset empty, r1,r2,r3;
+
+    secp256k1_multiset_init(ctx, &empty);
+    secp256k1_multiset_init(ctx, &r1);
+    secp256k1_multiset_init(ctx, &r2);
+    secp256k1_multiset_init(ctx, &r3);
+//进行secp256k1上的multiset加法之后，再进行hash
+ 
+    secp256k1_multiset_add(ctx, &r1, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[1], DATALEN);
+
+
+    CHECK_NOTEQUAL(&r1,&r2);
+    secp256k1_multiset_add(ctx, &r1, data[1], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[0], DATALEN);
+    CHECK_EQUAL(&r1,&r2);
+ //判定两个hash值是否相等
+
+    secp256k1_multiset_init(ctx, &r1);
+    secp256k1_multiset_init(ctx, &r2);
+    secp256k1_multiset_init(ctx, &r3);
+//判定强抗碰撞实验
+    CHECK_EQUAL(&r1,&r2);
+    secp256k1_multiset_add(ctx, &r1, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r1, data[1], DATALEN);
+    secp256k1_multiset_add(ctx, &r1, data[2], DATALEN);
+
+    secp256k1_multiset_add(ctx, &r2, data[2], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[1], DATALEN);
+
+    secp256k1_multiset_add(ctx, &r3, data[1], DATALEN);
+    secp256k1_multiset_add(ctx, &r3, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r3, data[2], DATALEN);
+//对于给定的secp256k1参数r1生成的hash值，是否能找到碰撞
+ //类似于验证其单向性是否正确！
+    CHECK_EQUAL(&r1,&r2);
+    CHECK_EQUAL(&r1,&r3);
+
+    secp256k1_multiset_combine(ctx, &r3, &empty);
+    CHECK_EQUAL(&r1,&r3);
+    secp256k1_multiset_combine(ctx, &r3, &r2);
+    CHECK_NOTEQUAL(&r1,&r3);
+
+}
+//类似的测试思路对于multiset之间组合链接之后生成的新multiset的安全测试
+//以及multiset的删除操作之后新multiset的安全测试内容与上面的测试函数基本相同
+void test_combine(void) {
+
+    secp256k1_multiset empty, r1,r2,r3;
+
+    secp256k1_multiset_init(ctx, &empty);
+    secp256k1_multiset_init(ctx, &r1);
+    secp256k1_multiset_init(ctx, &r2);
+ //这里由于是两个链所以在进行碰撞验证的时候需要多给定一个参数！
+    secp256k1_multiset_init(ctx, &r3);
+
+    secp256k1_multiset_add(ctx, &r1, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[1], DATALEN);
+
+
+
+    CHECK_NOTEQUAL(&r1,&r2);
+    secp256k1_multiset_add(ctx, &r1, data[1], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[0], DATALEN);
+    CHECK_EQUAL(&r1,&r2);
+
+    secp256k1_multiset_init(ctx, &r1);
+    secp256k1_multiset_init(ctx, &r2);
+    secp256k1_multiset_init(ctx, &r3);
+
+    CHECK_EQUAL(&r1,&r2);
+
+
+    secp256k1_multiset_add(ctx, &r1, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r1, data[1], DATALEN);
+    secp256k1_multiset_add(ctx, &r1, data[2], DATALEN);
+
+    secp256k1_multiset_add(ctx, &r2, data[2], DATALEN);
+    secp256k1_multiset_add(ctx, &r3, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r3, data[1], DATALEN);
+    secp256k1_multiset_combine(ctx, &r2, &r3);
+    CHECK_EQUAL(&r1,&r2);
+
+    secp256k1_multiset_init(ctx, &r2);
+    secp256k1_multiset_init(ctx, &r3);
+    secp256k1_multiset_add(ctx, &r2, data[2], DATALEN);
+    secp256k1_multiset_add(ctx, &r2, data[0], DATALEN);
+    secp256k1_multiset_add(ctx, &r3, data[1], DATALEN);
+    secp256k1_multiset_combine(ctx, &r2, &r3);
+    CHECK_EQUAL(&r1,&r2);
+
+
+    secp256k1_multiset_combine(ctx, &r2, &empty);
+    CHECK_EQUAL(&r1,&r2);
+    secp256k1_multiset_combine(ctx, &r2, &r1);
+    CHECK_NOTEQUAL(&r1,&r2);
+
+}
+
+
+void test_remove(void) {
+
+    secp256k1_multiset empty, r1,r2,r3;
+
+    secp256k1_multiset_init(ctx, &empty);
+    secp256k1_multiset_init(ctx, &r1);
+    secp256k1_multiset_init(ctx, &r2);
+    secp256k1_multiset_init(ctx, &r3);
+
+    CHECK_EQUAL(&r1,&r2);
+
+    secp256k1_multiset_add   (ctx, &r1, data[0], DATALEN);
+    secp256k1_multiset_add   (ctx, &r1, data[1], DATALEN);
+    secp256k1_multiset_add   (ctx, &r1, data[3], DATALEN);
+    secp256k1_multiset_add   (ctx, &r1, data[9], DATALEN);
+    secp256k1_multiset_add   (ctx, &r1, data[8], DATALEN);
+
+    secp256k1_multiset_add   (ctx, &r2, data[1], DATALEN);
+    secp256k1_multiset_add   (ctx, &r2, data[9], DATALEN);
+    secp256k1_multiset_add   (ctx, &r2, data[11], DATALEN);
+    secp256k1_multiset_add   (ctx, &r2, data[10], DATALEN);
+    secp256k1_multiset_add   (ctx, &r2, data[0], DATALEN);
+    secp256k1_multiset_remove(ctx, &r2, data[10], DATALEN);
+    secp256k1_multiset_add   (ctx, &r2, data[3], DATALEN);
+    secp256k1_multiset_add   (ctx, &r2, data[8], DATALEN);
+    secp256k1_multiset_remove(ctx, &r2, data[11], DATALEN);
+
+    secp256k1_multiset_add   (ctx, &r3, data[9], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[15], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[15], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[1], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[9], DATALEN);
+    secp256k1_multiset_remove(ctx, &r3, data[15], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[0], DATALEN);
+    secp256k1_multiset_remove(ctx, &r3, data[15], DATALEN);
+    secp256k1_multiset_remove(ctx, &r3, data[9], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[3], DATALEN);
+    secp256k1_multiset_add   (ctx, &r3, data[8], DATALEN);
+
+    CHECK_EQUAL(&r1,&r2);
+    CHECK_EQUAL(&r1,&r3);
+    CHECK_NOTEQUAL(&r1,&empty);
+
+    secp256k1_multiset_remove(ctx, &r3, data[8], DATALEN);
+    CHECK_NOTEQUAL(&r1,&r3);
+
+    secp256k1_multiset_remove(ctx, &r2, data[0], DATALEN);
+    secp256k1_multiset_remove(ctx, &r2, data[9], DATALEN);
+    secp256k1_multiset_remove(ctx, &r2, data[8], DATALEN);
+    secp256k1_multiset_remove(ctx, &r2, data[1], DATALEN);
+    secp256k1_multiset_remove(ctx, &r2, data[3], DATALEN);
+
+    CHECK_EQUAL(&r2,&empty);
+
+}
+//判断multiset是否为空（空集也可以认为是不安全的！）
+void test_empty(void) {
+    secp256k1_multiset empty, r1,r2;
+ 
+    secp256k1_multiset_init(ctx, &empty);
+    secp256k1_multiset_init(ctx, &r1);
+    secp256k1_multiset_init(ctx, &r2);
+
+    CHECK_EQUAL(&empty,&r1);
+
+    /* 空+空 = 空 */
+    secp256k1_multiset_combine(ctx, &r1, &r2);
+    CHECK_EQUAL(&empty, &r1);
+}
+
+void run_multiset_tests(void) {
+
+    initdata();
+    test_unordered();
+    test_combine();
+    test_remove();
+    test_empty();
+
+}
+//#endif
+//差点忘了，单独运行test程序最后需要加入endif
