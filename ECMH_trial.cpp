@@ -211,6 +211,7 @@ int secp256k1_multiset_init(const secp256k1_context* ctx, secp256k1_multiset *mu
 //希望再写一下学习笔记中相关的安全测试的功能
 //尤其是关于在mutliset操作后的乱序，拼接，删除等操作后可能引入的安全性攻击，比如碰撞，第二原象，原象等。
 //重新写了用于测试的程序(没有额外上传测试程序（懒了）直接)
+//花了5个多小时终于把test程序调好了，直接粘贴到trial文件的后面了
 /*
 #ifndef _SECP256K1_MODULE_MULTISET_TESTS_
 #define _SECP256K1_MODULE_MULTISET_TESTS_
