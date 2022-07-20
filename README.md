@@ -1,5 +1,5 @@
 # Project-Implement-the-above-ECMH-scheme
-实施上述ECMH方案：椭圆曲线哈希族（进一步学习笔记与代码实现说明）
+实施上述ECMH方案：椭圆曲线哈希族（进一步学习笔记与代码实现说明trial与try代码内容相同）
 
 首先我们由课程中讲述UTXO Commitment的目前兼顾效率与安全的实现方法之一 Elliptic curve MultiSet Hash
 
