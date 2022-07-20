@@ -1,11 +1,11 @@
 #ifndef _SECP256K1_MODULE_MULTISET_MAIN_
 #define _SECP256K1_MODULE_MULTISET_MAIN_
 
-//ÕâÀï²Î¿¼´úÂëËµÃ÷ÖĞ²Î¿¼×ÊÁÏ¡¾4¡¿ÖĞ´óÀĞµÄÍ·ÎÄ¼şË¼Â·
-//ÓÉÓÚSTDÖĞ²¢²»ÊÇÏñpythonÖĞÓĞÏÖ³ÉµÄÍÖÔ²ÇúÏßÔËËã¿â×÷Îªµ×²ãÔËËã
-//ËùÒÔÕâÀï¶ÔÓÚµ×²ãÔËËã²¿¼ş±ÈÈçsecp256k1µÄÍÖÔ²ÇúÏßÔËËãÒÔ¼°hash£¬ÓĞÏŞÓò
-//¶¼´òËã·Ö±ğ·Åµ½ÆäËûÍ·ÎÄ¼şÖĞ·Ö±ğµ÷ÓÃ£¨ÉõÖÁ´òËãÓÃpythonµÄÍÖÔ²ÇúÏß¿â½øĞĞ·â×°£©
-//ECMHµÄÊµÏÖÖ÷Òª°Ñ×¢ÒâÁ¦¼¯ÖĞÔÚÍÖÔ²ÇúÏßÓëmultisetµÄ½áºÏÉÏ
+//è¿™é‡Œå‚è€ƒä»£ç è¯´æ˜ä¸­å‚è€ƒèµ„æ–™ã€4ã€‘ä¸­å¤§ä½¬çš„å¤´æ–‡ä»¶æ€è·¯
+//ç”±äºSTDä¸­å¹¶ä¸æ˜¯åƒpythonä¸­æœ‰ç°æˆçš„æ¤­åœ†æ›²çº¿è¿ç®—åº“ä½œä¸ºåº•å±‚è¿ç®—
+//æ‰€ä»¥è¿™é‡Œå¯¹äºåº•å±‚è¿ç®—éƒ¨ä»¶æ¯”å¦‚secp256k1çš„æ¤­åœ†æ›²çº¿è¿ç®—ä»¥åŠhashï¼Œæœ‰é™åŸŸ
+//éƒ½æ‰“ç®—åˆ†åˆ«æ”¾åˆ°å…¶ä»–å¤´æ–‡ä»¶ä¸­åˆ†åˆ«è°ƒç”¨ï¼ˆç”šè‡³æ‰“ç®—ç”¨pythonçš„æ¤­åœ†æ›²çº¿åº“è¿›è¡Œå°è£…ï¼‰
+//ECMHçš„å®ç°ä¸»è¦æŠŠæ³¨æ„åŠ›é›†ä¸­åœ¨æ¤­åœ†æ›²çº¿ä¸multisetçš„ç»“åˆä¸Š
 /*include_HEADERS += include / secp256k1_multiset.h
 noinst_HEADERS += src / modules / multiset / main_impl.h
 noinst_HEADERS += src / modules / multiset / tests_impl.h
@@ -21,8 +21,8 @@ endif
 #include "field.h"
 #include "group.h"
 
-/* ½«ÈºÔªËØ£¨ÑÅ¿É±È¾ØÕó£©×ª»»Îª multiset.
- ÕâÀïÒ²²Î¿¼ÁË¡¾4¡¿ÖĞ´óÀĞµÄË¼Â·£¬ÎŞÏŞÊ¹ÓÃÌØÊâÖµ£¬z = 0 */
+/* å°†ç¾¤å…ƒç´ ï¼ˆé›…å¯æ¯”çŸ©é˜µï¼‰è½¬æ¢ä¸º multiset.
+ è¿™é‡Œä¹Ÿå‚è€ƒäº†ã€4ã€‘ä¸­å¤§ä½¬çš„æ€è·¯ï¼Œæ— é™ä½¿ç”¨ç‰¹æ®Šå€¼ï¼Œz = 0 */
 static void multiset_from_gej_var(secp256k1_multiset *target, const secp256k1_gej *input) {
 
     if (input->infinity) {
@@ -35,8 +35,8 @@ static void multiset_from_gej_var(secp256k1_multiset *target, const secp256k1_ge
     }
 }
 
-/*½«multiset×ª»»ÎªÈºÔªËØ£¨ÑÅ¿É±È¾ØÕó£©
- ÎŞÏŞÊ¹ÓÃÌØÊâÖµ£¬z = 0  */
+/*å°†multisetè½¬æ¢ä¸ºç¾¤å…ƒç´ ï¼ˆé›…å¯æ¯”çŸ©é˜µï¼‰
+ æ— é™ä½¿ç”¨ç‰¹æ®Šå€¼ï¼Œz = 0  */
 static void gej_from_multiset_var(secp256k1_gej *target,  const secp256k1_multiset *input) {
 
     secp256k1_fe_set_b32(&target->x, input->d);
@@ -46,11 +46,11 @@ static void gej_from_multiset_var(secp256k1_gej *target,  const secp256k1_multis
     target->infinity = secp256k1_fe_is_zero(&target->z) ? 1 : 0;
 }
 
-/*½«Êı¾İÔªËØ×ª»»ÎªÈºÔªËØ£¨·ÂÉä£©
-ÎÒÃÇÊ¹ÓÃ¿ìËÙµ«·Çºã¶¨Ê±¼äµÄtrial-and-rehash
-ËäÈ»´æÔÚºã¶¨Ê±¼äËã·¨£¬¾ÍºÍËµÃ÷ÖĞÃèÊöµÄÒ»Ñù
-ÓÉÓÚÓ¦ÓÃ²ãÃæÊÇUTXO CommitmentËùÒÔÎÒÃÇ²»¹ØĞÄ¶¨Ê±¹¥»÷
-ÒòÎªÎÒÃÇÃ»ÓĞÊÔÍ¼Òş²Øµ×²ãÊı¾İ*/ 
+/*å°†æ•°æ®å…ƒç´ è½¬æ¢ä¸ºç¾¤å…ƒç´ ï¼ˆä»¿å°„ï¼‰
+æˆ‘ä»¬ä½¿ç”¨å¿«é€Ÿä½†éæ’å®šæ—¶é—´çš„trial-and-rehash
+è™½ç„¶å­˜åœ¨æ’å®šæ—¶é—´ç®—æ³•ï¼Œå°±å’Œè¯´æ˜ä¸­æè¿°çš„ä¸€æ ·
+ç”±äºåº”ç”¨å±‚é¢æ˜¯UTXO Commitmentæ‰€ä»¥æˆ‘ä»¬ä¸å…³å¿ƒå®šæ—¶æ”»å‡»
+å› ä¸ºæˆ‘ä»¬æ²¡æœ‰è¯•å›¾éšè—åº•å±‚æ•°æ®*/ 
 static void ge_from_data_var(secp256k1_ge *target, const unsigned char *input, size_t inputLen) {
 
     secp256k1_sha256_t hasher;
@@ -61,7 +61,7 @@ static void ge_from_data_var(secp256k1_ge *target, const unsigned char *input, s
     secp256k1_sha256_write(&hasher, input, inputLen);
     secp256k1_sha256_finalize(&hasher, hash);
 
-    /* loop through trials,Ã¿ÂÖÑ­»·µÄ³É¹¦ÂÊÎª50%*/
+    /* loop through trials,æ¯è½®å¾ªç¯çš„æˆåŠŸç‡ä¸º50%*/
     for(;;)
     {
         secp256k1_fe x;
@@ -76,7 +76,7 @@ static void ge_from_data_var(secp256k1_ge *target, const unsigned char *input, s
             }
         }
 
-        /* ĞÂµÄÒ»ÂÖhash */
+        /* æ–°çš„ä¸€è½®hash */
         secp256k1_sha256_initialize(&hasher);
         secp256k1_sha256_write(&hasher, hash, sizeof(hash));
         secp256k1_sha256_finalize(&hasher, hash);
@@ -85,7 +85,7 @@ static void ge_from_data_var(secp256k1_ge *target, const unsigned char *input, s
 }
 
 
-/* ÏòmultisetÖĞÌí¼ÓÔªËØ */
+/* å‘multisetä¸­æ·»åŠ å…ƒç´  */
 int secp256k1_multiset_add(const secp256k1_context* ctx,
                               secp256k1_multiset *multiset,
                               const unsigned char *input, size_t inputLen)
@@ -110,7 +110,7 @@ int secp256k1_multiset_add(const secp256k1_context* ctx,
     return 1;
 }
 
-/* ´ÓmultisetÖĞÉ¾³ıÔªËØ */
+/* ä»multisetä¸­åˆ é™¤å…ƒç´  */
 int secp256k1_multiset_remove(const secp256k1_context* ctx,
                               secp256k1_multiset *multiset,
                               const unsigned char *input, size_t inputLen)
@@ -137,7 +137,7 @@ int secp256k1_multiset_remove(const secp256k1_context* ctx,
     return 1;
 }
 
-/* Á½¸ömultisetÖ±½ÓÏà¼Ó */
+/* ä¸¤ä¸ªmultisetç›´æ¥ç›¸åŠ  */
 int secp256k1_multiset_combine(const secp256k1_context* ctx, secp256k1_multiset *multiset, const secp256k1_multiset *input)
 {
     secp256k1_gej gej_multiset, gej_input, gej_result;
@@ -160,7 +160,7 @@ int secp256k1_multiset_combine(const secp256k1_context* ctx, secp256k1_multiset 
 }
 
 
-/* ¶ÔÓÚmultiset½øĞĞhashµÃµ½×îÖÕµÄhash½á¹û*/
+/* å¯¹äºmultisetè¿›è¡Œhashå¾—åˆ°æœ€ç»ˆçš„hashç»“æœ*/
 int secp256k1_multiset_finalize(const secp256k1_context* ctx, unsigned char *resultHash, const secp256k1_multiset *multiset)
 {
     secp256k1_sha256_t hasher;
@@ -177,7 +177,7 @@ int secp256k1_multiset_finalize(const secp256k1_context* ctx, unsigned char *res
 
         memset(buffer, 0xff, sizeof(buffer));
     } else {
-        /* ÎÒÃÇÓ¦¸ÃÕı½»»¯·ÂÉä×ø±êÖ®ºóÔÙ½øĞĞÔËËã */
+        /* æˆ‘ä»¬åº”è¯¥æ­£äº¤åŒ–ä»¿å°„åæ ‡ä¹‹åå†è¿›è¡Œè¿ç®— */
         secp256k1_ge_set_gej(&ge, &gej);
         secp256k1_fe_normalize(&ge.x);
         secp256k1_fe_normalize(&ge.y);
@@ -192,7 +192,7 @@ int secp256k1_multiset_finalize(const secp256k1_context* ctx, unsigned char *res
     return 1;
 }
 
-/* ³õÊ¼»¯¾ßÓĞ¿ÕÊı¾İ³£ÊıµÄmultiset£¬ÓÉJacobian GE infinite±íÊ¾ */
+/* åˆå§‹åŒ–å…·æœ‰ç©ºæ•°æ®å¸¸æ•°çš„multisetï¼Œç”±Jacobian GE infiniteè¡¨ç¤º */
 int secp256k1_multiset_init(const secp256k1_context* ctx, secp256k1_multiset *multiset) {
 
 
@@ -205,3 +205,6 @@ int secp256k1_multiset_init(const secp256k1_context* ctx, secp256k1_multiset *mu
     return 1;
 }
 #endif
+
+//å¸Œæœ›å†å†™ä¸€ä¸‹å­¦ä¹ ç¬”è®°ä¸­ç›¸å…³çš„å®‰å…¨æµ‹è¯•çš„åŠŸèƒ½
+//å°¤å…¶æ˜¯å…³äºåœ¨mutlisetæ“ä½œåçš„ä¹±åºï¼Œæ‹¼æ¥ï¼Œåˆ é™¤ç­‰æ“ä½œåå¯èƒ½å¼•å…¥çš„å®‰å…¨æ€§æ”»å‡»ï¼Œæ¯”å¦‚ç¢°æ’ï¼Œç¬¬äºŒåŸè±¡ï¼ŒåŸè±¡ç­‰
