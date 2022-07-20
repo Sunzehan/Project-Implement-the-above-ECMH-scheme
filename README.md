@@ -1,5 +1,5 @@
 # Project-Implement-the-above-ECMH-scheme
-实施上述ECMH方案：椭圆曲线哈希族
+实施上述ECMH方案：椭圆曲线哈希族（进一步学习笔记与代码实现说明）
 
 首先我们由课程中讲述UTXO Commitment的目前兼顾效率与安全的实现方法之一 Elliptic curve MultiSet Hash
 
@@ -9,7 +9,8 @@
 
 然而，这里存在一个问题，如果一个用户下载了UTXO集合，怎么保证下载的UTXO集合和某个区块能够对上？这里就引入了UTXO Commitment。就是把UTXO集合的摘要写到比特币的区块上。
 
-UTXO Commitment的实现方式
+**UTXO Commitment的实现方式**
+
 根据课程中讲述的方案与参考【1】
 朴素的方式
 按某个键排列所有UTXO，然后把他们连接起来进行哈希
@@ -39,7 +40,49 @@ ECMH哈希算法：Elliptic curve MultiSet Hash
 
 更安全的意思是要达到相同的安全性，ECMH算法需要的密钥长短远远小于哈希求和算法。与椭圆曲线类型的密钥有关，举个例子就是RSA在相同的安全性的条件下，需要的密钥长度远远长于ECC的。所以ECMH需要先映射到椭圆曲线，再继续进行同态加法【2】。
 
+**ECMH的实现参考【3】的实现思路**
+ECMH是一个32字节的值，它是为一组数据元素唯一确定地定义的，无论其顺序如何。
+
+该模块允许为具有以下属性的集合计算加密安全哈希：
+
+集合元素的顺序不影响哈希
+
+可以将元素添加到集合中，而无需重新计算整个集合
+或者从数学上来说，它是：
+
+交换：H（a，b）=H（b，a）
+
+结合：H（H（a，b，c）=H（a，H（b，c））
+
+因此，它的行为类似于对单个元素的哈希进行异或运算，但没有异或的加密弱点。
+
+该实现使用trial-and-increment【3】将hash值转换为secp256k1曲线上的点，该曲线用作Multiset。然后使用该椭圆曲线类中的操作添加和删除Multiset Hash。这样进行映射的话Multiset Hash就具有了结合性和交换性（如上的数学表达）。
+
+ECMH的安全性期望：可以防止碰撞攻击。
+使用的算法容易受到 timing attacks.。因此，它不能安全地隐藏正在散列的底层数据。
+For the purpose of UTXO commitments this is not relevant.【4】
+
+**ECMH实现的具体过程**
+由上面的分析我们进一步思考：我们找到了Multiset中元素的ECMH值（32byte）。Multiset的大小可以是任意，其中元素也可以是任何大小的二进制序列。同时我们规定集合元素的顺序无关紧要。重复元素是允许的，举例说明Multiset{a}不同于Multiset Hash{a，a}。
+参考【4】中的实现思路将使用secp256k1椭圆曲线【5】，Multiset的点P（a）是secp256k1椭圆曲线上为Multiset A唯一定义的点，具体定义如下
+
+空多集的点P（{}）被定义为曲线的无穷远点。
+使用以下算法计算具有单个元素P（{d}）的多集的点：设n=0，x=SHA256（n，SHA256（d））
+
+如果x是有限域中的元素而且x^3+7是二次剩余，那么P（{d}）=(x，(1/2)* (x^3+7))否则，增加n并从2继续
+
+我们使用椭圆曲线的群运算定义两个multisets A、B的组合点：
+P（A ∪ B） =P（A）* P（B）
+
+empty multiset的ECMH是个全0串共有32字节。非空集的ECMH是64字节值的SHA256值，该值由32字节的big-endianx坐标和其椭圆曲线上点的32字节big-endiany坐标组成。
+
 参考资料：
 【1】https://blog.csdn.net/weixin_34346099/article/details/92411938
 
 【2】https://blog.csdn.net/jason_cuijiahui/article/details/86711927
+
+【3】https://eprint.iacr.org/2009/226.pdf
+
+【4】https://github.com/tomasvdw/secp256k1/tree/multiset/src/modules/multiset
+
+【5】https://en.bitcoin.it/wiki/Secp256k1
