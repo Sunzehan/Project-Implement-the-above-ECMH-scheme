@@ -82,7 +82,9 @@ For the purpose of UTXO commitments this is not relevant.【4】
 
 重复元素是允许的，举例说明Multiset{a}不同于Multiset Hash{a，a}。
 
-  参考【4】中的实现思路将使用secp256k1椭圆曲线【5】，Multiset的点P（a）是secp256k1椭圆曲线上为Multiset A唯一定义的点，具体定义如下
+  参考【4】中的实现思路将使用secp256k1椭圆曲线【5】，Multiset的点P（a）是secp256k1椭圆曲线上为Multiset A唯一定义的点，
+  
+  具体定义如下
 
 空多集的点P（{}）被定义为曲线的无穷远点。使用以下算法计算具有单个元素P（{d}）的多集的点：设n=0，x=SHA256（n，SHA256（d））
 
