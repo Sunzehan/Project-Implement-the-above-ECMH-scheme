@@ -75,6 +75,7 @@ ECMH的安全性期望：可以防止碰撞攻击。
 For the purpose of UTXO commitments this is not relevant.【4】
 
 **ECMH实现的具体过程**
+
 由上面的分析我们进一步思考：我们找到了Multiset中元素的ECMH值（32byte）。
 
 Multiset的大小可以是任意，其中元素也可以是任何大小的二进制序列。同时我们规定集合元素的顺序无关紧要。
