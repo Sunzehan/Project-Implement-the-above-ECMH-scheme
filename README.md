@@ -60,9 +60,9 @@ ECMH是一个32字节的值，它是为一组数据元素唯一确定地定义�
 可以将元素添加到集合中，而无需重新计算整个集合
 或者从数学上来说，它是：
 
-交换：H（a，b）=H（b，a）
+  交换：H（a，b）=H（b，a）
 
-结合：H（H（a，b，c）=H（a，H（b，c））
+  结合：H（H（a，b，c）=H（a，H（b，c））
 
 因此，它的行为类似于对单个元素的哈希进行异或运算，但没有异或的加密弱点。
 
@@ -78,15 +78,13 @@ For the purpose of UTXO commitments this is not relevant.【4】
 
 由上面的分析我们进一步思考：我们找到了Multiset中元素的ECMH值（32byte）。
 
-Multiset的大小可以是任意，其中元素也可以是任何大小的二进制序列。同时我们规定集合元素的顺序无关紧要。
+  Multiset的大小可以是任意，其中元素也可以是任何大小的二进制序列。同时我们规定集合元素的顺序无关紧要。
 
 重复元素是允许的，举例说明Multiset{a}不同于Multiset Hash{a，a}。
 
-参考【4】中的实现思路将使用secp256k1椭圆曲线【5】，Multiset的点P（a）是secp256k1椭圆曲线上为Multiset A唯一定义的点，具体定义如下
+  参考【4】中的实现思路将使用secp256k1椭圆曲线【5】，Multiset的点P（a）是secp256k1椭圆曲线上为Multiset A唯一定义的点，具体定义如下
 
-空多集的点P（{}）被定义为曲线的无穷远点。
-
-使用以下算法计算具有单个元素P（{d}）的多集的点：设n=0，x=SHA256（n，SHA256（d））
+空多集的点P（{}）被定义为曲线的无穷远点。使用以下算法计算具有单个元素P（{d}）的多集的点：设n=0，x=SHA256（n，SHA256（d））
 
 如果x是有限域中的元素而且x^3+7是二次剩余，那么P（{d}）=(x，(1/2)* (x^3+7))否则，增加n并从2继续
 
@@ -95,7 +93,8 @@ P（A ∪ B） =P（A）* P（B）
 
 empty multiset的ECMH是个全0串共有32字节。非空集的ECMH是64字节值的SHA256值，该值由32字节的big-endianx坐标和其椭圆曲线上点的32字节big-endiany坐标组成。
 
-参考资料：
+**参考资料：**
+
 【1】https://blog.csdn.net/weixin_34346099/article/details/92411938
 
 【2】https://blog.csdn.net/jason_cuijiahui/article/details/86711927
