@@ -29,7 +29,7 @@
 
 对集合中的每个UTXO进行哈希，然后把所有的哈希加起来作为这个UTXO集合的哈希结果。每接收一个新区块，就用UTXO集合的哈希减去花费的UTXO哈希&加上新增的UTXO哈希。
 
-![图片](https://user-images.githubusercontent.com/107350922/179759883-ceff9bc3-d5df-4f9e-8d63-0978794ca490.png)
+![图片](https://user-images.githubusercontent.com/107350922/179759883-ceff9bc3-d5df-4f9e-8d63-0978794ca490.png)【6】
 
 这里存在一个问题，这个算法没那么安全，假设当前UTXO集合哈希为S，我想伪造的交易为T，那么我只需要找到另外哈希值为S-T的交易即可。此处还有进一步弱化，UTXO集合的数量不确定，允许很多中排列组合，安全性进一步降低。
 
@@ -107,3 +107,5 @@ empty multiset的ECMH是个全0串共有32字节。非空集的ECMH是64字节�
 【4】https://github.com/tomasvdw/secp256k1/tree/multiset/src/modules/multiset
 
 【5】https://en.bitcoin.it/wiki/Secp256k1
+
+【6】课程ppt文件：20220606-eth-public
