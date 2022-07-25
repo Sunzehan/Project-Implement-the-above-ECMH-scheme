@@ -50,7 +50,7 @@ static void gej_from_multiset_var(secp256k1_gej *target,  const secp256k1_multis
 我们使用快速但非恒定时间的trial-and-rehash
 虽然存在恒定时间算法，就和说明中描述的一样
 由于应用层面是UTXO Commitment所以我们不关心定时攻击
-因为我们没有试图隐藏底层数据*/ 
+因为我们没有试图隐藏底层数据，所以可以不进行考虑*/ 
 static void ge_from_data_var(secp256k1_ge *target, const unsigned char *input, size_t inputLen) {
 
     secp256k1_sha256_t hasher;
