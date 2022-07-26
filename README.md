@@ -12,7 +12,7 @@
 然而，这里存在一个问题，如果一个用户下载了UTXO集合，怎么保证下载的UTXO集合和某个区块能够对上？这里就引入了UTXO Commitment。就是把UTXO集合的摘要写到比特币的区块上。
 
 **UTXO Commitment的实现方式**
-
+-
 根据课程中讲述的方案与参考【1】
 
 1.朴素的方式
@@ -51,7 +51,7 @@ ECMH哈希算法：Elliptic curve MultiSet Hash
 与椭圆曲线类型的密钥有关，举个例子就是RSA在相同的安全性的条件下，需要的密钥长度远远长于ECC的。所以ECMH需要先映射到椭圆曲线，再继续进行同态加法【2】。
 
 **ECMH的实现参考【3】的实现思路**
-
+-
 ECMH是一个32字节的值，它是为一组数据元素唯一确定地定义的，无论其顺序如何。
 
 该模块允许为具有以下属性的集合计算加密安全哈希：
@@ -76,7 +76,7 @@ ECMH的安全性期望：可以防止碰撞攻击。
 For the purpose of UTXO commitments this is not relevant.【4】
 
 **ECMH实现的具体过程**
-
+-
 由上面的分析我们进一步思考：我们找到了Multiset中元素的ECMH值（32byte）。
 
   Multiset的大小可以是任意，其中元素也可以是任何大小的二进制序列。同时我们规定集合元素的顺序无关紧要。
@@ -95,6 +95,8 @@ For the purpose of UTXO commitments this is not relevant.【4】
 P（A ∪ B） =P（A）* P（B）
 
 empty multiset的ECMH是个全0串共有32字节。非空集的ECMH是64字节值的SHA256值，该值由32字节的big-endianx坐标和其椭圆曲线上点的32字节big-endiany坐标组成。
+
+
 
 **参考资料：**
 
